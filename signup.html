@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClipVault – Create account</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<!-- SUPABASE SDK — loads from CDN, no install needed -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #0a0a0f;
+  --surface: #13131e;
+  --border:  #252535;
+  --accent:  #4f8eff;
+  --accent2: #a259ff;
+  --green:   #22d07a;
+  --red:     #ff4f6a;
+  --text:    #e8e8f2;
+  --muted:   #6b6b88;
+  --subtle:  #9898b8;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+/* ─── LEFT PANEL ─── */
+.left-panel {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.left-glow {
+  position: absolute; bottom: -100px; left: -100px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(79,142,255,0.12) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.left-glow2 {
+  position: absolute; top: -80px; right: -80px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(162,89,255,0.1) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.panel-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px; font-weight: 700;
+  color: var(--text); text-decoration: none;
+}
+
+.logo-mark {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+}
+.logo-mark svg { width: 14px; height: 14px; fill: white; }
+
+.panel-body { z-index: 1; }
+
+.panel-body h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 32px; font-weight: 700;
+  line-height: 1.2; margin-bottom: 16px;
+  letter-spacing: -0.02em;
+}
+
+.panel-body h2 em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.panel-body p { color: var(--subtle); font-size: 15px; line-height: 1.7; margin-bottom: 36px; }
+
+.proof-list { display: flex; flex-direction: column; gap: 14px; }
+
+.proof-item {
+  display: flex; align-items: flex-start; gap: 12px;
+}
+
+.proof-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.proof-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.proof-desc  { font-size: 12px; color: var(--muted); }
+
+.panel-footer { font-size: 12px; color: var(--muted); z-index: 1; }
+
+/* ─── RIGHT PANEL (FORM) ─── */
+.right-panel {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 60px 48px;
+}
+
+.form-card {
+  width: 100%; max-width: 400px;
+}
+
+.form-header { margin-bottom: 32px; }
+.form-header h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 26px; font-weight: 700;
+  margin-bottom: 6px;
+}
+.form-header p { color: var(--muted); font-size: 14px; }
+
+/* GOOGLE BTN */
+.btn-google {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 11px;
+  border-radius: 9px;
+  font-size: 14px; font-weight: 500;
+  cursor: pointer; font-family: 'Inter', sans-serif;
+  transition: border-color .2s, background .2s;
+  margin-bottom: 22px;
+}
+.btn-google:hover { border-color: var(--accent); background: rgba(79,142,255,0.05); }
+
+.divider {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 22px;
+}
+.divider span { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.divider::before, .divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* FORM FIELDS */
+.field { margin-bottom: 16px; }
+
+.field label {
+  display: block;
+  font-size: 13px; font-weight: 500;
+  margin-bottom: 7px; color: var(--subtle);
+}
+
+.field input {
+  width: 100%; padding: 11px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text); font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.field input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(79,142,255,0.12);
+}
+
+.field input.error { border-color: var(--red); }
+
+.field-error {
+  font-size: 12px; color: var(--red);
+  margin-top: 5px; display: none;
+}
+.field-error.show { display: block; }
+
+.password-wrap { position: relative; }
+.toggle-pw {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: var(--muted); cursor: pointer;
+  padding: 4px;
+}
+
+.terms {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 20px; font-size: 13px; color: var(--muted);
+}
+.terms input[type="checkbox"] { margin-top: 2px; accent-color: var(--accent); }
+.terms a { color: var(--accent); text-decoration: none; }
+
+.btn-submit {
+  width: 100%; padding: 13px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white; font-size: 15px; font-weight: 600;
+  border: none; border-radius: 9px; cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: opacity .2s, transform .15s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-submit:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* STATUS MESSAGES */
+.alert {
+  padding: 12px 14px; border-radius: 9px;
+  font-size: 13px; margin-bottom: 18px;
+  display: none; align-items: flex-start; gap: 8px;
+}
+.alert.show { display: flex; }
+.alert.success { background: rgba(34,208,122,0.1); border: 1px solid rgba(34,208,122,0.25); color: var(--green); }
+.alert.error-msg   { background: rgba(255,79,106,0.1); border: 1px solid rgba(255,79,106,0.25); color: var(--red); }
+
+.form-footer {
+  text-align: center; margin-top: 24px;
+  font-size: 13px; color: var(--muted);
+}
+.form-footer a { color: var(--accent); text-decoration: none; }
+
+/* SPINNER */
+.spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white; border-radius: 50%;
+  animation: spin .7s linear infinite;
+  display: none;
+}
+.btn-submit.loading .spinner { display: block; }
+.btn-submit.loading .btn-label { display: none; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  body { grid-template-columns: 1fr; }
+  .left-panel { display: none; }
+  .right-panel { padding: 40px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LEFT PANEL -->
+<div class="left-panel">
+  <div class="left-glow"></div>
+  <div class="left-glow2"></div>
+
+  <a href="index.html" class="panel-logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 16 16"><polygon points="4,2 14,8 4,14"/></svg>
+    </div>
+    ClipVault
+  </a>
+
+  <div class="panel-body">
+    <h2>Clip smarter.<br><em>Grow faster.</em></h2>
+    <p>Join thousands of creators who stopped editing manually and started posting more.</p>
+
+    <div class="proof-list">
+      <div class="proof-item">
+        <div class="proof-icon" style="background:rgba(79,142,255,0.12)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4f8eff" stroke-width="2" stroke-linecap="round">
+            <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+          </svg>
+        </div>
+        <div>
+          <div class="proof-title">2 free clips, no card needed</div>
+          <div class="proof-desc">Start immediately — no payment info required to try it.</div>
+        </div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-icon" style="background:rgba(34,208,122,0.12)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22d07a" stroke-width="2" stroke-linecap="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div>
+          <div class="proof-title">AI finds the best moments</div>
+          <div class="proof-desc">No timeline scrubbing. No guessing. Just upload and pick.</div>
+        </div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-icon" style="background:rgba(162,89,255,0.12)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a259ff" stroke-width="2" stroke-linecap="round">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+        </div>
+        <div>
+          <div class="proof-title">Share everywhere in one click</div>
+          <div class="proof-desc">TikTok, Reels, Shorts, Twitter — ready-formatted clips.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-footer">© 2026 ClipVault · <a href="index.html" style="color:inherit">Back to home</a></div>
+</div>
+
+<!-- RIGHT PANEL (FORM) -->
+<div class="right-panel">
+  <div class="form-card">
+
+    <div class="form-header">
+      <h1>Create your account</h1>
+      <p>Free forever — upgrade only when you're ready.</p>
+    </div>
+
+    <!-- ALERT BOXES -->
+    <div class="alert success" id="alertSuccess">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      <span>Account created! Check your email to confirm, then <a href="login.html" style="color:inherit;font-weight:600;text-decoration:underline">log in</a>.</span>
+    </div>
+    <div class="alert error-msg" id="alertError">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="alertErrorText">Something went wrong.</span>
+    </div>
+
+    <!-- GOOGLE -->
+    <button class="btn-google" onclick="signInWithGoogle()">
+      <svg width="18" height="18" viewBox="0 0 48 48">
+        <path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.6 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/>
+        <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16 19 12 24 12c3.1 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
+        <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.4 35.5 26.8 36 24 36c-5.3 0-9.6-3.1-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/>
+        <path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.9 2.4-2.5 4.5-4.5 6l6.2 5.2C36.9 36.1 44 30.9 44 24c0-1.3-.1-2.6-.4-3.9z"/>
+      </svg>
+      Continue with Google
+    </button>
+
+    <div class="divider"><span>or sign up with email</span></div>
+
+    <!-- FORM -->
+    <div class="field">
+      <label for="fullname">Full name</label>
+      <input type="text" id="fullname" placeholder="Your name" autocomplete="name">
+      <div class="field-error" id="nameError">Please enter your name.</div>
+    </div>
+
+    <div class="field">
+      <label for="email">Email address</label>
+      <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+      <div class="field-error" id="emailError">Please enter a valid email.</div>
+    </div>
+
+    <div class="field">
+      <label for="password">Password</label>
+      <div class="password-wrap">
+        <input type="password" id="password" placeholder="At least 8 characters" autocomplete="new-password">
+        <button class="toggle-pw" type="button" onclick="togglePw('password', this)" title="Show password">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div class="field-error" id="passwordError">Password must be at least 8 characters.</div>
+    </div>
+
+    <div class="terms">
+      <input type="checkbox" id="agree">
+      <label for="agree">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+    </div>
+
+    <button class="btn-submit" id="signupBtn" onclick="handleSignup()">
+      <span class="btn-label">Create account</span>
+      <div class="spinner"></div>
+    </button>
+
+    <div class="form-footer">
+      Already have an account? <a href="login.html">Log in →</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ─── SUPABASE CONFIG ───────────────────────────────────────────────────────
+// STEP: Replace these two values after setting up Supabase (see setup-guide.html)
+const SUPABASE_URL = 'https://mpbpibgqerocokrxtdqp.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_FwGCcT8XEHp6VkvDFKnK5Q_sy_2QJSx';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────
+function showError(msg) {
+  document.getElementById('alertErrorText').textContent = msg;
+  document.getElementById('alertError').classList.add('show');
+  document.getElementById('alertSuccess').classList.remove('show');
+}
+
+function showSuccess() {
+  document.getElementById('alertSuccess').classList.add('show');
+  document.getElementById('alertError').classList.remove('show');
+}
+
+function setLoading(on) {
+  const btn = document.getElementById('signupBtn');
+  btn.classList.toggle('loading', on);
+  btn.disabled = on;
+}
+
+function togglePw(id, btn) {
+  const input = document.getElementById(id);
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+function validateForm() {
+  let valid = true;
+
+  const name = document.getElementById('fullname').value.trim();
+  const nameErr = document.getElementById('nameError');
+  if (!name) {
+    document.getElementById('fullname').classList.add('error');
+    nameErr.classList.add('show'); valid = false;
+  } else {
+    document.getElementById('fullname').classList.remove('error');
+    nameErr.classList.remove('show');
+  }
+
+  const email = document.getElementById('email').value.trim();
+  const emailErr = document.getElementById('emailError');
+  const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  if (!validEmail) {
+    document.getElementById('email').classList.add('error');
+    emailErr.classList.add('show'); valid = false;
+  } else {
+    document.getElementById('email').classList.remove('error');
+    emailErr.classList.remove('show');
+  }
+
+  const pw = document.getElementById('password').value;
+  const pwErr = document.getElementById('passwordError');
+  if (pw.length < 8) {
+    document.getElementById('password').classList.add('error');
+    pwErr.classList.add('show'); valid = false;
+  } else {
+    document.getElementById('password').classList.remove('error');
+    pwErr.classList.remove('show');
+  }
+
+  if (!document.getElementById('agree').checked) {
+    showError('Please agree to the Terms of Service to continue.');
+    valid = false;
+  }
+
+  return valid;
+}
+
+// ─── EMAIL SIGNUP ─────────────────────────────────────────────────────────
+async function handleSignup() {
+  if (!validateForm()) return;
+
+  setLoading(true);
+
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const name     = document.getElementById('fullname').value.trim();
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { full_name: name } }
+  });
+
+  setLoading(false);
+
+  if (error) {
+    showError(error.message);
+  } else {
+    showSuccess();
+    document.querySelector('.form-card form') && document.querySelector('.form-card form').reset();
+  }
+}
+
+// ─── GOOGLE OAUTH ─────────────────────────────────────────────────────────
+async function signInWithGoogle() {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin + '/dashboard.html' }
+  });
+  if (error) showError(error.message);
+}
+
+// ─── ENTER KEY ────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleSignup();
+});
+</script>
+</body>
+</html>

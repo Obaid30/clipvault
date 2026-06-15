@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClipVault – Log in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #0a0a0f;
+  --surface: #13131e;
+  --border:  #252535;
+  --accent:  #4f8eff;
+  --accent2: #a259ff;
+  --green:   #22d07a;
+  --red:     #ff4f6a;
+  --text:    #e8e8f2;
+  --muted:   #6b6b88;
+  --subtle:  #9898b8;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+/* LEFT PANEL */
+.left-panel {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  padding: 40px;
+  position: relative; overflow: hidden;
+}
+
+.left-glow {
+  position: absolute; top: -80px; right: -80px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(162,89,255,0.12) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.left-glow2 {
+  position: absolute; bottom: -100px; left: -100px;
+  width: 450px; height: 450px;
+  background: radial-gradient(circle, rgba(79,142,255,0.1) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.panel-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px; font-weight: 700;
+  color: var(--text); text-decoration: none;
+}
+
+.logo-mark {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+}
+.logo-mark svg { width: 14px; height: 14px; fill: white; }
+
+.panel-center { z-index: 1; }
+
+.panel-center h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 30px; font-weight: 700;
+  line-height: 1.25; margin-bottom: 14px;
+  letter-spacing: -0.02em;
+}
+
+.panel-center h2 em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.panel-center p { color: var(--subtle); font-size: 14px; line-height: 1.7; margin-bottom: 32px; }
+
+/* MINI STATS */
+.stats-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.stat-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px;
+}
+
+.stat-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 26px; font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 4px;
+}
+
+.stat-label { font-size: 12px; color: var(--muted); }
+
+.panel-footer { font-size: 12px; color: var(--muted); z-index: 1; }
+
+/* RIGHT PANEL */
+.right-panel {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 60px 48px;
+}
+
+.form-card { width: 100%; max-width: 400px; }
+
+.form-header { margin-bottom: 32px; }
+.form-header h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 26px; font-weight: 700;
+  margin-bottom: 6px;
+}
+.form-header p { color: var(--muted); font-size: 14px; }
+
+/* GOOGLE */
+.btn-google {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 11px; border-radius: 9px;
+  font-size: 14px; font-weight: 500;
+  cursor: pointer; font-family: 'Inter', sans-serif;
+  transition: border-color .2s, background .2s;
+  margin-bottom: 22px;
+}
+.btn-google:hover { border-color: var(--accent); background: rgba(79,142,255,0.05); }
+
+.divider {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 22px;
+}
+.divider span { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.divider::before, .divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* FIELDS */
+.field { margin-bottom: 16px; }
+
+.field label {
+  display: block; font-size: 13px; font-weight: 500;
+  margin-bottom: 7px; color: var(--subtle);
+}
+
+.field input {
+  width: 100%; padding: 11px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text); font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.field input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(79,142,255,0.12);
+}
+.field input.error { border-color: var(--red); }
+
+.field-error { font-size: 12px; color: var(--red); margin-top: 5px; display: none; }
+.field-error.show { display: block; }
+
+.password-wrap { position: relative; }
+.toggle-pw {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: var(--muted); cursor: pointer; padding: 4px;
+}
+
+.forgot-row {
+  display: flex; justify-content: flex-end;
+  margin-top: -8px; margin-bottom: 20px;
+}
+.forgot-row a { font-size: 13px; color: var(--accent); text-decoration: none; }
+
+/* ALERT */
+.alert {
+  padding: 12px 14px; border-radius: 9px;
+  font-size: 13px; margin-bottom: 18px;
+  display: none; align-items: flex-start; gap: 8px;
+}
+.alert.show { display: flex; }
+.alert.success { background: rgba(34,208,122,0.1); border: 1px solid rgba(34,208,122,0.25); color: var(--green); }
+.alert.error-msg   { background: rgba(255,79,106,0.1); border: 1px solid rgba(255,79,106,0.25); color: var(--red); }
+
+/* SUBMIT */
+.btn-submit {
+  width: 100%; padding: 13px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white; font-size: 15px; font-weight: 600;
+  border: none; border-radius: 9px; cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: opacity .2s, transform .15s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-submit:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white; border-radius: 50%;
+  animation: spin .7s linear infinite; display: none;
+}
+.btn-submit.loading .spinner { display: block; }
+.btn-submit.loading .btn-label { display: none; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.form-footer {
+  text-align: center; margin-top: 24px;
+  font-size: 13px; color: var(--muted);
+}
+.form-footer a { color: var(--accent); text-decoration: none; }
+
+/* FORGOT PW PANEL */
+.forgot-panel { display: none; }
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--muted); cursor: pointer;
+  margin-bottom: 28px; background: none; border: none;
+  font-family: 'Inter', sans-serif;
+}
+.back-link:hover { color: var(--text); }
+
+@media (max-width: 768px) {
+  body { grid-template-columns: 1fr; }
+  .left-panel { display: none; }
+  .right-panel { padding: 40px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LEFT PANEL -->
+<div class="left-panel">
+  <div class="left-glow"></div>
+  <div class="left-glow2"></div>
+
+  <a href="index.html" class="panel-logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 16 16"><polygon points="4,2 14,8 4,14"/></svg>
+    </div>
+    ClipVault
+  </a>
+
+  <div class="panel-center">
+    <h2>Welcome<br><em>back.</em></h2>
+    <p>Your clips, your stats, your storage — all exactly where you left them.</p>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num">12K+</div>
+        <div class="stat-label">Creators using ClipVault</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">2.4M</div>
+        <div class="stat-label">Clips generated this month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">94%</div>
+        <div class="stat-label">Say it saves them 2+ hrs/week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">30+</div>
+        <div class="stat-label">Caption languages supported</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-footer">© 2026 ClipVault · <a href="index.html" style="color:inherit">Back to home</a></div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+  <div class="form-card">
+
+    <!-- LOGIN PANEL -->
+    <div id="loginPanel">
+      <div class="form-header">
+        <h1>Log in to ClipVault</h1>
+        <p>Good to have you back.</p>
+      </div>
+
+      <div class="alert success" id="alertSuccess">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Password reset email sent — check your inbox.</span>
+      </div>
+      <div class="alert error-msg" id="alertError">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="alertErrorText">Invalid email or password.</span>
+      </div>
+
+      <button class="btn-google" onclick="signInWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 48 48">
+          <path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.6 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/>
+          <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16 19 12 24 12c3.1 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
+          <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.4 35.5 26.8 36 24 36c-5.3 0-9.6-3.1-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/>
+          <path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.9 2.4-2.5 4.5-4.5 6l6.2 5.2C36.9 36.1 44 30.9 44 24c0-1.3-.1-2.6-.4-3.9z"/>
+        </svg>
+        Continue with Google
+      </button>
+
+      <div class="divider"><span>or log in with email</span></div>
+
+      <div class="field">
+        <label for="email">Email address</label>
+        <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+        <div class="field-error" id="emailError">Please enter a valid email.</div>
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="password-wrap">
+          <input type="password" id="password" placeholder="Your password" autocomplete="current-password">
+          <button class="toggle-pw" type="button" onclick="togglePw('password', this)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="forgot-row">
+        <a href="#" onclick="showForgot(); return false;">Forgot password?</a>
+      </div>
+
+      <button class="btn-submit" id="loginBtn" onclick="handleLogin()">
+        <span class="btn-label">Log in</span>
+        <div class="spinner"></div>
+      </button>
+
+      <div class="form-footer">
+        Don't have an account? <a href="signup.html">Sign up free →</a>
+      </div>
+    </div>
+
+    <!-- FORGOT PASSWORD PANEL -->
+    <div id="forgotPanel" class="forgot-panel">
+      <button class="back-link" onclick="showLogin()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="20" y1="12" x2="4" y2="12"/><polyline points="10,18 4,12 10,6"/></svg>
+        Back to log in
+      </button>
+
+      <div class="form-header">
+        <h1>Reset your password</h1>
+        <p>We'll send a reset link to your email.</p>
+      </div>
+
+      <div class="alert success" id="forgotSuccess">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Reset link sent! Check your inbox.</span>
+      </div>
+      <div class="alert error-msg" id="forgotError">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+        <span id="forgotErrorText">Could not send reset link.</span>
+      </div>
+
+      <div class="field">
+        <label for="resetEmail">Email address</label>
+        <input type="email" id="resetEmail" placeholder="you@example.com">
+      </div>
+
+      <button class="btn-submit" id="resetBtn" onclick="handleForgot()">
+        <span class="btn-label">Send reset link</span>
+        <div class="spinner"></div>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ─── SUPABASE CONFIG ───────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://mpbpibgqerocokrxtdqp.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_FwGCcT8XEHp6VkvDFKnK5Q_sy_2QJSx';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ─── CHECK IF ALREADY LOGGED IN ────────────────────────────────────────────
+(async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) window.location.href = 'dashboard.html';
+})();
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────
+function showError(msg) {
+  document.getElementById('alertErrorText').textContent = msg;
+  document.getElementById('alertError').classList.add('show');
+  document.getElementById('alertSuccess').classList.remove('show');
+}
+
+function setLoading(btnId, on) {
+  const btn = document.getElementById(btnId);
+  btn.classList.toggle('loading', on);
+  btn.disabled = on;
+}
+
+function togglePw(id) {
+  const input = document.getElementById(id);
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+function showForgot() {
+  document.getElementById('loginPanel').style.display = 'none';
+  document.getElementById('forgotPanel').style.display = 'block';
+}
+
+function showLogin() {
+  document.getElementById('forgotPanel').style.display = 'none';
+  document.getElementById('loginPanel').style.display = 'block';
+}
+
+// ─── LOGIN ────────────────────────────────────────────────────────────────
+async function handleLogin() {
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+
+  if (!email || !password) { showError('Please enter your email and password.'); return; }
+
+  setLoading('loginBtn', true);
+
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+  setLoading('loginBtn', false);
+
+  if (error) {
+    showError(error.message === 'Invalid login credentials'
+      ? 'Incorrect email or password. Try again.'
+      : error.message);
+  } else {
+    window.location.href = 'dashboard.html';
+  }
+}
+
+// ─── GOOGLE OAUTH ─────────────────────────────────────────────────────────
+async function signInWithGoogle() {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin + '/dashboard.html' }
+  });
+  if (error) showError(error.message);
+}
+
+// ─── FORGOT PASSWORD ──────────────────────────────────────────────────────
+async function handleForgot() {
+  const email = document.getElementById('resetEmail').value.trim();
+  if (!email) return;
+
+  setLoading('resetBtn', true);
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '/reset-password.html'
+  });
+
+  setLoading('resetBtn', false);
+
+  if (error) {
+    document.getElementById('forgotErrorText').textContent = error.message;
+    document.getElementById('forgotError').classList.add('show');
+  } else {
+    document.getElementById('forgotSuccess').classList.add('show');
+    document.getElementById('forgotError').classList.remove('show');
+  }
+}
+
+// ─── ENTER KEY ────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('forgotPanel').style.display === 'block') handleForgot();
+    else handleLogin();
+  }
+});
+</script>
+</body>
+</html>

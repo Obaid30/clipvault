@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClipVault – Step 3 Setup Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#0a0a0f; --surface:#13131e; --surface2:#1c1c2a;
+  --border:#252535; --accent:#4f8eff; --accent2:#a259ff;
+  --green:#22d07a; --orange:#ff7b3a; --text:#e8e8f2; --muted:#6b6b88; --subtle:#9898b8;
+}
+body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; padding:60px 24px 100px; }
+.page { max-width:720px; margin:0 auto; }
+
+.page-header { text-align:center; margin-bottom:56px; }
+.step-label { display:inline-block; background:rgba(79,142,255,0.1); border:1px solid rgba(79,142,255,0.25); color:var(--accent); font-size:12px; font-weight:600; padding:4px 14px; border-radius:99px; margin-bottom:16px; letter-spacing:.08em; }
+.page-header h1 { font-family:'Space Grotesk',sans-serif; font-size:34px; font-weight:700; margin-bottom:10px; letter-spacing:-0.02em; }
+.page-header p  { color:var(--subtle); font-size:15px; line-height:1.65; }
+
+/* PROGRESS */
+.progress-row { display:flex; gap:8px; justify-content:center; margin-bottom:48px; flex-wrap:wrap; }
+.prog-step {
+  display:flex; align-items:center; gap:6px; padding:6px 14px;
+  border-radius:99px; border:1px solid var(--border);
+  font-size:12px; font-weight:500; color:var(--muted);
+}
+.prog-step.done    { border-color:var(--green);  color:var(--green);  background:rgba(34,208,122,0.08); }
+.prog-step.current { border-color:var(--accent); color:var(--accent); background:rgba(79,142,255,0.08); }
+
+/* SECTION */
+.guide-section { margin-bottom:32px; }
+.guide-section-title {
+  font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:600;
+  margin-bottom:16px; display:flex; align-items:center; gap:10px;
+}
+.section-num {
+  width:28px; height:28px; border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:700; color:white;
+}
+
+.step-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:14px; overflow:hidden; margin-bottom:12px;
+}
+
+.instruction {
+  display:flex; gap:14px; padding:18px 20px;
+  border-bottom:1px solid var(--border);
+}
+.instruction:last-child { border-bottom:none; }
+
+.inst-num {
+  width:24px; height:24px; border-radius:50%;
+  background:rgba(79,142,255,0.12); border:1px solid rgba(79,142,255,0.2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:700; color:var(--accent);
+  flex-shrink:0; margin-top:1px;
+}
+.inst-title  { font-size:14px; font-weight:600; margin-bottom:4px; }
+.inst-desc   { font-size:13px; color:var(--subtle); line-height:1.65; }
+
+.ui-btn { display:inline-flex; align-items:center; gap:5px; background:#3ecf8e; color:#020202; padding:4px 12px; border-radius:5px; font-size:12px; font-weight:700; }
+.ui-field { display:inline-block; background:var(--surface2); border:1px solid var(--border); border-radius:5px; padding:2px 9px; font-size:12px; font-family:monospace; color:var(--accent); }
+
+.code-block {
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:10px; padding:16px 18px;
+  font-family:monospace; font-size:13px; line-height:1.8;
+  position:relative; overflow-x:auto; margin:10px 0;
+}
+.code-block .cm { color:var(--muted); }
+.code-block .kw { color:var(--accent); }
+.code-block .st { color:var(--green); }
+.code-block .hl { color:var(--orange); font-weight:600; }
+
+.copy-btn {
+  position:absolute; top:10px; right:10px;
+  background:var(--surface); border:1px solid var(--border);
+  color:var(--muted); font-size:11px; padding:3px 9px;
+  border-radius:5px; cursor:pointer; font-family:'Inter',sans-serif;
+}
+.copy-btn:hover { border-color:var(--accent); color:var(--text); }
+
+.callout {
+  display:flex; gap:10px; border-radius:10px; padding:12px 14px;
+  font-size:13px; line-height:1.65; margin:10px 0;
+}
+.callout.info    { background:rgba(79,142,255,0.08); border:1px solid rgba(79,142,255,0.2); color:#a8c8ff; }
+.callout.warn    { background:rgba(255,123,58,0.08); border:1px solid rgba(255,123,58,0.2); color:#ffc4a0; }
+.callout.success { background:rgba(34,208,122,0.08); border:1px solid rgba(34,208,122,0.2); color:#9affd4; }
+.callout svg     { flex-shrink:0; margin-top:1px; }
+
+.sql-label {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:6px; font-size:12px; color:var(--muted);
+}
+.sql-lang-tag {
+  background:rgba(162,89,255,0.15); color:var(--accent2);
+  padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600;
+}
+
+/* DONE BTN */
+.done-btn {
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  width:100%; padding:13px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:white; font-size:15px; font-weight:600;
+  border:none; border-radius:10px; cursor:pointer;
+  font-family:'Inter',sans-serif; margin-top:32px;
+  transition:opacity .2s;
+}
+.done-btn:hover { opacity:.88; }
+
+.next-card {
+  background:linear-gradient(135deg,rgba(79,142,255,0.06),rgba(162,89,255,0.06));
+  border:1px solid rgba(79,142,255,0.2);
+  border-radius:14px; padding:28px; text-align:center; margin-top:24px;
+  display:none;
+}
+.next-card h3 { font-family:'Space Grotesk',sans-serif; font-size:18px; margin-bottom:8px; }
+.next-card p  { color:var(--muted); font-size:13px; margin-bottom:20px; }
+.next-card a  { display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:white; padding:11px 24px; border-radius:9px; text-decoration:none; font-size:14px; font-weight:600; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="page-header">
+    <div class="step-label">STEP 3 OF 7</div>
+    <h1>Video Upload & Storage</h1>
+    <p>Set up your Supabase Storage bucket and database table<br>so videos actually save when users upload them.</p>
+  </div>
+
+  <!-- PROGRESS PILLS -->
+  <div class="progress-row">
+    <div class="prog-step done">✓ Step 1 — Landing page</div>
+    <div class="prog-step done">✓ Step 2 — Auth</div>
+    <div class="prog-step current">● Step 3 — Upload & Storage</div>
+    <div class="prog-step">Step 4 — AI Clipping</div>
+    <div class="prog-step">Step 5 — Clip Viewer</div>
+    <div class="prog-step">Step 6 — Payments</div>
+    <div class="prog-step">Step 7 — Extension</div>
+  </div>
+
+  <!-- SECTION A: Storage Bucket -->
+  <div class="guide-section">
+    <div class="guide-section-title">
+      <div class="section-num">A</div>
+      Create the Storage bucket
+    </div>
+
+    <div class="step-card">
+      <div class="instruction">
+        <div class="inst-num">1</div>
+        <div>
+          <div class="inst-title">Open Storage in Supabase</div>
+          <div class="inst-desc">In your Supabase project, click <b>Storage</b> in the left sidebar.</div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">2</div>
+        <div>
+          <div class="inst-title">Create a new bucket</div>
+          <div class="inst-desc">
+            Click <span class="ui-btn">New bucket</span> and fill in:<br><br>
+            <b>Name:</b> <span class="ui-field">videos</span><br>
+            <b>Public bucket:</b> Toggle <b>ON</b> (so video URLs work)<br>
+            <b>File size limit:</b> <span class="ui-field">524288000</span> (= 500MB in bytes)<br>
+            <b>Allowed MIME types:</b> <span class="ui-field">video/mp4,video/quicktime,video/webm</span>
+          </div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">3</div>
+        <div>
+          <div class="inst-title">Click Save</div>
+          <div class="inst-desc">Your <span class="ui-field">videos</span> bucket is created. Videos will be stored here as <span class="ui-field">user_id/timestamp_filename.mp4</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
+      Supabase free tier gives you 1GB of storage. That's about 5–10 minutes of video footage — enough to launch and get your first users.
+    </div>
+  </div>
+
+  <!-- SECTION B: Database Table -->
+  <div class="guide-section">
+    <div class="guide-section-title">
+      <div class="section-num">B</div>
+      Create the videos database table
+    </div>
+
+    <div class="step-card">
+      <div class="instruction">
+        <div class="inst-num">1</div>
+        <div>
+          <div class="inst-title">Open the SQL Editor</div>
+          <div class="inst-desc">In Supabase left sidebar, click <b>SQL Editor</b>, then click <b>New query</b>.</div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">2</div>
+        <div>
+          <div class="inst-title">Paste this SQL and run it</div>
+          <div class="inst-desc">Copy the code below exactly, paste it into the SQL editor, and click <span class="ui-btn">Run</span>.</div>
+          <div class="sql-label"><span>Creates the videos table</span><span class="sql-lang-tag">SQL</span></div>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyBlock(this)">Copy</button>
+            <span class="cm">-- Create videos table</span><br>
+            <span class="kw">CREATE TABLE IF NOT EXISTS</span> videos (<br>
+            &nbsp;&nbsp;id            <span class="st">uuid</span> DEFAULT gen_random_uuid() <span class="kw">PRIMARY KEY</span>,<br>
+            &nbsp;&nbsp;user_id       <span class="st">uuid</span> <span class="kw">REFERENCES</span> auth.users(id) <span class="kw">ON DELETE CASCADE</span>,<br>
+            &nbsp;&nbsp;filename      <span class="st">text</span> <span class="kw">NOT NULL</span>,<br>
+            &nbsp;&nbsp;title         <span class="st">text</span>,<br>
+            &nbsp;&nbsp;storage_path  <span class="st">text</span>,<br>
+            &nbsp;&nbsp;video_url     <span class="st">text</span>,<br>
+            &nbsp;&nbsp;thumbnail_url <span class="st">text</span>,<br>
+            &nbsp;&nbsp;size_bytes    <span class="st">bigint</span>,<br>
+            &nbsp;&nbsp;duration_secs <span class="st">integer</span>,<br>
+            &nbsp;&nbsp;status        <span class="st">text</span> DEFAULT <span class="st">'uploading'</span>,<br>
+            &nbsp;&nbsp;clip_count    <span class="st">integer</span> DEFAULT 0,<br>
+            &nbsp;&nbsp;created_at    <span class="st">timestamptz</span> DEFAULT now()<br>
+            );<br><br>
+            <span class="cm">-- Users can only see their own videos</span><br>
+            <span class="kw">ALTER TABLE</span> videos <span class="kw">ENABLE ROW LEVEL SECURITY</span>;<br><br>
+            <span class="kw">CREATE POLICY</span> <span class="st">"Users see own videos"</span><br>
+            &nbsp;&nbsp;<span class="kw">ON</span> videos <span class="kw">FOR ALL</span><br>
+            &nbsp;&nbsp;<span class="kw">USING</span> (auth.uid() = user_id);<br><br>
+            <span class="cm">-- Users can insert their own videos</span><br>
+            <span class="kw">CREATE POLICY</span> <span class="st">"Users insert own videos"</span><br>
+            &nbsp;&nbsp;<span class="kw">ON</span> videos <span class="kw">FOR INSERT</span><br>
+            &nbsp;&nbsp;<span class="kw">WITH CHECK</span> (auth.uid() = user_id);
+          </div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">3</div>
+        <div>
+          <div class="inst-title">Click Run → you should see "Success"</div>
+          <div class="inst-desc">The table is created. Click <b>Table Editor</b> in the sidebar and you'll see <span class="ui-field">videos</span> listed there.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout success">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      Row Level Security means users can <b>only ever see their own videos</b> — nobody can access someone else's data. This is already set up in the SQL above.
+    </div>
+  </div>
+
+  <!-- SECTION C: Storage Policy -->
+  <div class="guide-section">
+    <div class="guide-section-title">
+      <div class="section-num">C</div>
+      Set storage access rules
+    </div>
+
+    <div class="step-card">
+      <div class="instruction">
+        <div class="inst-num">1</div>
+        <div>
+          <div class="inst-title">Go to Storage → Policies</div>
+          <div class="inst-desc">In Supabase, click <b>Storage</b> → then <b>Policies</b> at the top. Click <b>New Policy</b> on the <span class="ui-field">videos</span> bucket.</div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">2</div>
+        <div>
+          <div class="inst-title">Run this SQL in the SQL Editor instead (easier)</div>
+          <div class="inst-desc">Paste and run this in <b>SQL Editor → New query</b>:</div>
+          <div class="sql-label"><span>Storage access policies</span><span class="sql-lang-tag">SQL</span></div>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyBlock(this)">Copy</button>
+            <span class="cm">-- Logged-in users can upload to their own folder</span><br>
+            <span class="kw">CREATE POLICY</span> <span class="st">"Users upload own videos"</span><br>
+            &nbsp;&nbsp;<span class="kw">ON</span> storage.objects <span class="kw">FOR INSERT</span><br>
+            &nbsp;&nbsp;<span class="kw">TO</span> authenticated<br>
+            &nbsp;&nbsp;<span class="kw">WITH CHECK</span> (bucket_id = <span class="st">'videos'</span> <span class="kw">AND</span><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;(storage.foldername(name))[1] = auth.uid()::text);<br><br>
+            <span class="cm">-- Logged-in users can read/delete their own files</span><br>
+            <span class="kw">CREATE POLICY</span> <span class="st">"Users manage own videos"</span><br>
+            &nbsp;&nbsp;<span class="kw">ON</span> storage.objects <span class="kw">FOR ALL</span><br>
+            &nbsp;&nbsp;<span class="kw">TO</span> authenticated<br>
+            &nbsp;&nbsp;<span class="kw">USING</span> (bucket_id = <span class="st">'videos'</span> <span class="kw">AND</span><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;(storage.foldername(name))[1] = auth.uid()::text);<br><br>
+            <span class="cm">-- Anyone can view public video URLs</span><br>
+            <span class="kw">CREATE POLICY</span> <span class="st">"Public video access"</span><br>
+            &nbsp;&nbsp;<span class="kw">ON</span> storage.objects <span class="kw">FOR SELECT</span><br>
+            &nbsp;&nbsp;<span class="kw">TO</span> anon<br>
+            &nbsp;&nbsp;<span class="kw">USING</span> (bucket_id = <span class="st">'videos'</span>);
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>
+      If you see an error saying the policy already exists, that's fine — just ignore it and move on.
+    </div>
+  </div>
+
+  <!-- SECTION D: Update your files -->
+  <div class="guide-section">
+    <div class="guide-section-title">
+      <div class="section-num">D</div>
+      Update your dashboard.html file
+    </div>
+
+    <div class="step-card">
+      <div class="instruction">
+        <div class="inst-num">1</div>
+        <div>
+          <div class="inst-title">Open dashboard.html in a text editor</div>
+          <div class="inst-desc">Right-click the file → Open With → Notepad (Windows) or TextEdit (Mac).</div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">2</div>
+        <div>
+          <div class="inst-title">Paste your Supabase keys</div>
+          <div class="inst-desc">Find these two lines near the top of the &lt;script&gt; tag and replace the placeholder values — same keys from Step 2:</div>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyBlock(this)">Copy</button>
+            <span class="kw">const SUPABASE_URL</span>      = <span class="hl">'YOUR_SUPABASE_URL'</span>;<br>
+            <span class="kw">const SUPABASE_ANON_KEY</span> = <span class="hl">'YOUR_SUPABASE_ANON_KEY'</span>;
+          </div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">3</div>
+        <div>
+          <div class="inst-title">Re-deploy to Vercel</div>
+          <div class="inst-desc">Go to your Vercel project → <b>Deployments</b> → drag your updated <span class="ui-field">clipvault</span> folder again. It redeploys in about 30 seconds.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION E: Test it -->
+  <div class="guide-section">
+    <div class="guide-section-title">
+      <div class="section-num">E</div>
+      Test your upload
+    </div>
+
+    <div class="step-card">
+      <div class="instruction">
+        <div class="inst-num">1</div>
+        <div>
+          <div class="inst-title">Open your live site</div>
+          <div class="inst-desc">Go to your Vercel URL → log in → you'll land on the dashboard.</div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">2</div>
+        <div>
+          <div class="inst-title">Upload a short test video</div>
+          <div class="inst-desc">Click "Choose File" or drag a small MP4. You'll see the upload progress bar move through 4 stages: Uploading → Processing → AI Clipping → Ready.</div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">3</div>
+        <div>
+          <div class="inst-title">Verify in Supabase</div>
+          <div class="inst-desc">
+            Check two places in Supabase:<br>
+            → <b>Storage → videos bucket</b>: you should see your file<br>
+            → <b>Table Editor → videos table</b>: you should see a new row with status <span class="ui-field">processing</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout success">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      If the file appears in storage AND a row appears in the table, <b>Step 3 is complete.</b> Your upload pipeline is working end-to-end.
+    </div>
+  </div>
+
+  <button class="done-btn" onclick="markDone()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+    Step 3 complete — move to Step 4
+  </button>
+
+  <div class="next-card" id="nextCard">
+    <div style="font-size:40px;margin-bottom:14px">🤖</div>
+    <h3>Step 4 — AI Clipping</h3>
+    <p>We'll connect AssemblyAI to automatically detect the best moments in every uploaded video and save the clips to your database.</p>
+    <a href="#">Tell Claude "Step 4 go" to continue →</a>
+  </div>
+
+</div>
+<script>
+function markDone() {
+  document.getElementById('nextCard').style.display = 'block';
+  document.getElementById('nextCard').scrollIntoView({ behavior: 'smooth' });
+}
+
+function copyBlock(btn) {
+  const block = btn.parentElement;
+  const text = block.innerText.replace('Copy','').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+}
+</script>
+</body>
+</html>

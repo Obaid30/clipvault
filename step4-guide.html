@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClipVault – Step 4 Setup Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#0a0a0f; --surface:#13131e; --surface2:#1c1c2a;
+  --border:#252535; --accent:#4f8eff; --accent2:#a259ff;
+  --green:#22d07a; --orange:#ff7b3a; --red:#ff4f6a;
+  --text:#e8e8f2; --muted:#6b6b88; --subtle:#9898b8;
+}
+body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; padding:60px 24px 100px; }
+.page { max-width:720px; margin:0 auto; }
+
+.page-header { text-align:center; margin-bottom:52px; }
+.step-label { display:inline-block; background:rgba(79,142,255,0.1); border:1px solid rgba(79,142,255,0.25); color:var(--accent); font-size:12px; font-weight:600; padding:4px 14px; border-radius:99px; margin-bottom:14px; letter-spacing:.08em; }
+.page-header h1 { font-family:'Space Grotesk',sans-serif; font-size:34px; font-weight:700; margin-bottom:10px; letter-spacing:-0.02em; }
+.page-header p  { color:var(--subtle); font-size:15px; line-height:1.65; max-width:500px; margin:0 auto; }
+
+.progress-row { display:flex; gap:8px; justify-content:center; margin-bottom:48px; flex-wrap:wrap; }
+.prog-step { display:flex; align-items:center; gap:6px; padding:6px 14px; border-radius:99px; border:1px solid var(--border); font-size:12px; font-weight:500; color:var(--muted); }
+.prog-step.done    { border-color:var(--green);  color:var(--green);  background:rgba(34,208,122,0.08); }
+.prog-step.current { border-color:var(--accent); color:var(--accent); background:rgba(79,142,255,0.08); }
+
+/* HOW IT FLOWS diagram */
+.flow-diagram {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:14px; padding:24px; margin-bottom:36px;
+  display:flex; align-items:center; justify-content:center;
+  gap:0; flex-wrap:wrap;
+}
+.flow-node {
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  padding:14px 18px; background:var(--surface2);
+  border:1px solid var(--border); border-radius:12px;
+  font-size:12px; text-align:center; min-width:100px;
+}
+.flow-node-icon { font-size:22px; }
+.flow-node-label { font-weight:600; font-size:12px; }
+.flow-node-sub { font-size:11px; color:var(--muted); }
+.flow-arrow { padding:0 10px; color:var(--border); font-size:18px; }
+.flow-node.highlight { border-color:var(--accent); background:rgba(79,142,255,0.06); }
+
+/* SECTIONS */
+.guide-section { margin-bottom:28px; }
+.guide-section-title {
+  font-family:'Space Grotesk',sans-serif; font-size:17px; font-weight:600;
+  margin-bottom:14px; display:flex; align-items:center; gap:10px;
+}
+.section-num {
+  width:28px; height:28px; border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:700; color:white; flex-shrink:0;
+}
+
+.step-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+.instruction { display:flex; gap:14px; padding:16px 20px; border-bottom:1px solid var(--border); }
+.instruction:last-child { border-bottom:none; }
+.inst-num {
+  width:24px; height:24px; border-radius:50%;
+  background:rgba(79,142,255,0.12); border:1px solid rgba(79,142,255,0.2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:700; color:var(--accent);
+  flex-shrink:0; margin-top:2px;
+}
+.inst-title { font-size:14px; font-weight:600; margin-bottom:4px; }
+.inst-desc  { font-size:13px; color:var(--subtle); line-height:1.65; }
+
+.ui-btn   { display:inline-flex; align-items:center; gap:5px; background:#3ecf8e; color:#020202; padding:3px 10px; border-radius:5px; font-size:12px; font-weight:700; }
+.ui-field { display:inline-block; background:var(--surface2); border:1px solid var(--border); border-radius:5px; padding:2px 9px; font-size:12px; font-family:monospace; color:var(--accent); }
+.ui-red   { background:rgba(255,79,106,0.12); color:var(--red); border-color:rgba(255,79,106,0.25); }
+
+.code-block {
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:10px; padding:16px 18px; margin:10px 0;
+  font-family:monospace; font-size:13px; line-height:1.8;
+  position:relative; overflow-x:auto;
+}
+.code-block .cm { color:var(--muted); }
+.code-block .kw { color:var(--accent); }
+.code-block .st { color:var(--green); }
+.code-block .hl { color:var(--orange); font-weight:600; }
+.code-block .vr { color:var(--accent2); }
+
+.copy-btn {
+  position:absolute; top:10px; right:10px;
+  background:var(--surface); border:1px solid var(--border);
+  color:var(--muted); font-size:11px; padding:3px 9px;
+  border-radius:5px; cursor:pointer; font-family:'Inter',sans-serif;
+}
+.copy-btn:hover { border-color:var(--accent); color:var(--text); }
+
+.callout { display:flex; gap:10px; border-radius:10px; padding:12px 14px; font-size:13px; line-height:1.65; margin:10px 0; }
+.callout.info    { background:rgba(79,142,255,0.08); border:1px solid rgba(79,142,255,0.2); color:#a8c8ff; }
+.callout.warn    { background:rgba(255,123,58,0.08); border:1px solid rgba(255,123,58,0.2); color:#ffc4a0; }
+.callout.success { background:rgba(34,208,122,0.08); border:1px solid rgba(34,208,122,0.2); color:#9affd4; }
+.callout svg { flex-shrink:0; margin-top:1px; }
+
+/* ENV VAR TABLE */
+.env-table { width:100%; border-collapse:collapse; margin:10px 0; font-size:13px; }
+.env-table th { text-align:left; padding:8px 12px; background:var(--surface2); color:var(--muted); font-weight:500; border-bottom:1px solid var(--border); }
+.env-table td { padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+.env-table tr:last-child td { border-bottom:none; }
+.env-table .var-name { font-family:monospace; color:var(--accent2); font-size:12px; }
+.env-table .var-where { color:var(--muted); font-size:12px; }
+
+/* SQL */
+.sql-label { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; font-size:12px; color:var(--muted); }
+.sql-lang-tag { background:rgba(162,89,255,0.15); color:var(--accent2); padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600; }
+
+/* TEST SECTION */
+.test-steps { display:flex; flex-direction:column; gap:10px; margin-top:4px; }
+.test-step {
+  display:flex; align-items:flex-start; gap:12px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:10px; padding:14px 16px;
+}
+.test-check { width:20px; height:20px; border-radius:50%; border:2px solid var(--border); flex-shrink:0; margin-top:1px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+.test-check.checked { border-color:var(--green); background:var(--green); }
+.test-check.checked::after { content:'✓'; color:#020202; font-size:12px; font-weight:700; }
+.test-label { font-size:13px; line-height:1.5; }
+
+.done-btn {
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  width:100%; padding:13px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:white; font-size:15px; font-weight:600;
+  border:none; border-radius:10px; cursor:pointer;
+  font-family:'Inter',sans-serif; margin-top:28px; transition:opacity .2s;
+}
+.done-btn:hover { opacity:.88; }
+
+.next-card {
+  background:linear-gradient(135deg,rgba(79,142,255,0.06),rgba(162,89,255,0.06));
+  border:1px solid rgba(79,142,255,0.2); border-radius:14px;
+  padding:28px; text-align:center; margin-top:20px; display:none;
+}
+.next-card h3 { font-family:'Space Grotesk',sans-serif; font-size:18px; margin-bottom:8px; }
+.next-card p  { color:var(--muted); font-size:13px; margin-bottom:20px; line-height:1.65; }
+.next-card a  { display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:white; padding:11px 24px; border-radius:9px; text-decoration:none; font-size:14px; font-weight:600; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="page-header">
+    <div class="step-label">STEP 4 OF 7</div>
+    <h1>AI Clipping Engine</h1>
+    <p>Connect AssemblyAI to automatically find the best moments in every uploaded video — no editing required.</p>
+  </div>
+
+  <div class="progress-row">
+    <div class="prog-step done">✓ Landing page</div>
+    <div class="prog-step done">✓ Auth</div>
+    <div class="prog-step done">✓ Upload & Storage</div>
+    <div class="prog-step current">● AI Clipping</div>
+    <div class="prog-step">Clip Viewer</div>
+    <div class="prog-step">Payments</div>
+    <div class="prog-step">Extension</div>
+  </div>
+
+  <!-- HOW IT FLOWS -->
+  <div class="flow-diagram">
+    <div class="flow-node">
+      <div class="flow-node-icon">🎬</div>
+      <div class="flow-node-label">User uploads</div>
+      <div class="flow-node-sub">Supabase Storage</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node highlight">
+      <div class="flow-node-icon">⚡</div>
+      <div class="flow-node-label">Serverless fn</div>
+      <div class="flow-node-sub">Vercel Edge</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node highlight">
+      <div class="flow-node-icon">🤖</div>
+      <div class="flow-node-label">AssemblyAI</div>
+      <div class="flow-node-sub">Detects clips</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="flow-node-icon">💾</div>
+      <div class="flow-node-label">Clips saved</div>
+      <div class="flow-node-sub">Supabase DB</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">
+      <div class="flow-node-icon">✨</div>
+      <div class="flow-node-label">Dashboard</div>
+      <div class="flow-node-sub">Shows clips</div>
+    </div>
+  </div>
+
+  <!-- SECTION A: AssemblyAI -->
+  <div class="guide-section">
+    <div class="guide-section-title"><div class="section-num">A</div> Get your AssemblyAI key</div>
+    <div class="step-card">
+      <div class="instruction">
+        <div class="inst-num">1</div>
+        <div>
+          <div class="inst-title">Create a free account</div>
+          <div class="inst-desc">Go to <a href="https://assemblyai.com" target="_blank" style="color:var(--accent)">assemblyai.com ↗</a> → click <span class="ui-btn">Get started free</span> → sign up with Google or email.</div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">2</div>
+        <div>
+          <div class="inst-title">Copy your API key</div>
+          <div class="inst-desc">After signing in, your API key is shown on the dashboard homepage. It looks like <span class="ui-field">a1b2c3d4e5f6...</span><br>Copy it — you'll paste it into Vercel in Section B.</div>
+        </div>
+      </div>
+    </div>
+    <div class="callout info">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
+      AssemblyAI free tier gives you $50 in credits — roughly 100 hours of audio processed. More than enough to launch and get real users.
+    </div>
+  </div>
+
+  <!-- SECTION B: Create clips table -->
+  <div class="guide-section">
+    <div class="guide-section-title"><div class="section-num">B</div> Create the clips table in Supabase</div>
+    <div class="step-card">
+      <div class="instruction">
+        <div class="inst-num">1</div>
+        <div>
+          <div class="inst-title">Open SQL Editor in Supabase → New query</div>
+          <div class="inst-desc">Paste and run the SQL below. This creates the table where each clip gets stored.</div>
+          <div class="sql-label"><span>Creates the clips table</span><span class="sql-lang-tag">SQL</span></div>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyBlock(this)">Copy</button>
+            <span class="kw">CREATE TABLE IF NOT EXISTS</span> clips (<br>
+            &nbsp;&nbsp;id             <span class="st">uuid</span> DEFAULT gen_random_uuid() <span class="kw">PRIMARY KEY</span>,<br>
+            &nbsp;&nbsp;video_id       <span class="st">uuid</span> <span class="kw">REFERENCES</span> videos(id) <span class="kw">ON DELETE CASCADE</span>,<br>
+            &nbsp;&nbsp;title          <span class="st">text</span>,<br>
+            &nbsp;&nbsp;summary        <span class="st">text</span>,<br>
+            &nbsp;&nbsp;transcript_text <span class="st">text</span>,<br>
+            &nbsp;&nbsp;start_ms       <span class="st">integer</span>,<br>
+            &nbsp;&nbsp;end_ms         <span class="st">integer</span>,<br>
+            &nbsp;&nbsp;duration_secs  <span class="st">integer</span>,<br>
+            &nbsp;&nbsp;source         <span class="st">text</span>,  <span class="cm">-- 'chapter', 'highlight', 'sentiment'</span><br>
+            &nbsp;&nbsp;score          <span class="st">integer</span> DEFAULT 0,<br>
+            &nbsp;&nbsp;created_at     <span class="st">timestamptz</span> DEFAULT now()<br>
+            );<br><br>
+            <span class="cm">-- Allow users to read clips from their own videos</span><br>
+            <span class="kw">ALTER TABLE</span> clips <span class="kw">ENABLE ROW LEVEL SECURITY</span>;<br><br>
+            <span class="kw">CREATE POLICY</span> <span class="st">"Users read own clips"</span><br>
+            &nbsp;&nbsp;<span class="kw">ON</span> clips <span class="kw">FOR SELECT</span><br>
+            &nbsp;&nbsp;<span class="kw">USING</span> (<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;video_id <span class="kw">IN</span> (<span class="kw">SELECT</span> id <span class="kw">FROM</span> videos <span class="kw">WHERE</span> user_id = auth.uid())<br>
+            &nbsp;&nbsp;);<br><br>
+            <span class="cm">-- Also add transcript_id column to videos table</span><br>
+            <span class="kw">ALTER TABLE</span> videos <span class="kw">ADD COLUMN IF NOT EXISTS</span> transcript_id <span class="st">text</span>;
+          </div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">2</div>
+        <div>
+          <div class="inst-title">Click Run → success message appears</div>
+          <div class="inst-desc">Go to <b>Table Editor</b> — you should now see both <span class="ui-field">videos</span> and <span class="ui-field">clips</span> in the list.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION C: Vercel env vars -->
+  <div class="guide-section">
+    <div class="guide-section-title"><div class="section-num">C</div> Add secret keys to Vercel</div>
+    <div class="step-card">
+      <div class="instruction">
+        <div class="inst-num">1</div>
+        <div>
+          <div class="inst-title">Go to your Vercel project settings</div>
+          <div class="inst-desc">On <a href="https://vercel.com" target="_blank" style="color:var(--accent)">vercel.com ↗</a> → click your ClipVault project → <b>Settings</b> tab → <b>Environment Variables</b>.</div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">2</div>
+        <div>
+          <div class="inst-title">Add these 3 variables</div>
+          <div class="inst-desc">Click <span class="ui-btn">Add New</span> for each one:</div>
+          <table class="env-table">
+            <tr><th>Variable name</th><th>Value (where to find it)</th></tr>
+            <tr>
+              <td><span class="var-name">ASSEMBLYAI_API_KEY</span></td>
+              <td><span class="var-where">AssemblyAI dashboard → your API key</span></td>
+            </tr>
+            <tr>
+              <td><span class="var-name">SUPABASE_URL</span></td>
+              <td><span class="var-where">Supabase → Settings → API → Project URL</span></td>
+            </tr>
+            <tr>
+              <td><span class="var-name">SUPABASE_SERVICE_KEY</span></td>
+              <td><span class="var-where">Supabase → Settings → API → <b>service_role</b> key (secret!)</span></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">3</div>
+        <div>
+          <div class="inst-title">Set environment to "All" and save each one</div>
+          <div class="inst-desc">Make sure the dropdown says <span class="ui-field">Production, Preview, Development</span> for each variable so it works everywhere.</div>
+        </div>
+      </div>
+    </div>
+    <div class="callout warn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>
+      The <b>service_role</b> key has full database access — only ever put it in Vercel environment variables, never in your HTML files.
+    </div>
+  </div>
+
+  <!-- SECTION D: Deploy -->
+  <div class="guide-section">
+    <div class="guide-section-title"><div class="section-num">D</div> Update your folder & redeploy</div>
+    <div class="step-card">
+      <div class="instruction">
+        <div class="inst-num">1</div>
+        <div>
+          <div class="inst-title">Your clipvault folder should now look like this</div>
+          <div class="inst-desc">
+            <span class="ui-field">📁 clipvault/</span><br>
+            &nbsp;&nbsp;<span class="ui-field">index.html</span><br>
+            &nbsp;&nbsp;<span class="ui-field">dashboard.html</span> ← updated in Step 4<br>
+            &nbsp;&nbsp;<span class="ui-field">signup.html</span><br>
+            &nbsp;&nbsp;<span class="ui-field">login.html</span><br>
+            &nbsp;&nbsp;<span class="ui-field">vercel.json</span> ← new file from Step 4<br>
+            &nbsp;&nbsp;<span class="ui-field">📁 api/</span><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="ui-field">process-video.js</span> ← new file from Step 4
+          </div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">2</div>
+        <div>
+          <div class="inst-title">Redeploy to Vercel</div>
+          <div class="inst-desc">Drag the updated <span class="ui-field">clipvault</span> folder to Vercel → it redeploys in ~30 seconds. The <span class="ui-field">api/</span> folder automatically becomes serverless functions.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION E: Test -->
+  <div class="guide-section">
+    <div class="guide-section-title"><div class="section-num">E</div> Test the full pipeline</div>
+    <div class="test-steps">
+      <div class="test-step">
+        <div class="test-check" onclick="this.classList.toggle('checked')"></div>
+        <div class="test-label">Log in to your live site and upload a short video (30–60 seconds works well for testing)</div>
+      </div>
+      <div class="test-step">
+        <div class="test-check" onclick="this.classList.toggle('checked')"></div>
+        <div class="test-label">The card appears immediately in "Processing…" state with a spinning ring</div>
+      </div>
+      <div class="test-step">
+        <div class="test-check" onclick="this.classList.toggle('checked')"></div>
+        <div class="test-label">Wait 30–90 seconds (AssemblyAI processing time) — the card updates to "Ready" with a clip count</div>
+      </div>
+      <div class="test-step">
+        <div class="test-check" onclick="this.classList.toggle('checked')"></div>
+        <div class="test-label">In Supabase → Table Editor → clips — you see rows with start_ms, end_ms, score, and title</div>
+      </div>
+      <div class="test-step">
+        <div class="test-check" onclick="this.classList.toggle('checked')"></div>
+        <div class="test-label">In Vercel → your project → Functions tab → you can see the process-video function was called</div>
+      </div>
+    </div>
+    <div class="callout success" style="margin-top:14px">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      If clips appear in your Supabase table after uploading, <b>Step 4 is fully working.</b> Your AI engine is live.
+    </div>
+  </div>
+
+  <!-- TROUBLESHOOT -->
+  <div class="guide-section">
+    <div class="guide-section-title"><div class="section-num">F</div> Troubleshooting</div>
+    <div class="step-card">
+      <div class="instruction">
+        <div class="inst-num">?</div>
+        <div>
+          <div class="inst-title">Card stays "Processing…" forever</div>
+          <div class="inst-desc">Check Vercel → Functions tab → see if process-video ran and what error it logged. Most common cause: wrong SUPABASE_SERVICE_KEY or ASSEMBLYAI_API_KEY in env vars.</div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">?</div>
+        <div>
+          <div class="inst-title">AssemblyAI returns 0 clips</div>
+          <div class="inst-desc">Very short videos (&lt;15 seconds) may not generate chapters. Try a 60-second video with speech. AssemblyAI needs audio — music-only videos won't clip.</div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">?</div>
+        <div>
+          <div class="inst-title">Function timeout error</div>
+          <div class="inst-desc">Long videos (&gt;10 min) may exceed Vercel's 60-second function limit on the free plan. Solution: upgrade to Vercel Hobby ($0, 5-minute limit) or Pro ($20/mo, unlimited).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="done-btn" onclick="markDone()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+    Step 4 complete — AI clipping is live 🤖
+  </button>
+
+  <div class="next-card" id="nextCard">
+    <div style="font-size:40px;margin-bottom:14px">🎬</div>
+    <h3>Step 5 — Clip Viewer</h3>
+    <p>Build the screen where users watch, scrub through, and download their detected clips. Includes a virality score, transcript preview, and one-click export buttons for TikTok, Reels, and Shorts.</p>
+    <a href="#">Tell Claude "Step 5 go" to continue →</a>
+  </div>
+
+</div>
+<script>
+function markDone() {
+  document.getElementById('nextCard').style.display = 'block';
+  document.getElementById('nextCard').scrollIntoView({ behavior:'smooth' });
+}
+function copyBlock(btn) {
+  const text = btn.parentElement.innerText.replace('Copy','').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClipVault – Supabase Setup Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0f; --surface: #13131e; --surface2: #1c1c2a;
+  --border: #252535; --accent: #4f8eff; --accent2: #a259ff;
+  --green: #22d07a; --orange: #ff7b3a; --text: #e8e8f2;
+  --muted: #6b6b88; --subtle: #9898b8;
+}
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding: 60px 24px 100px; }
+.page { max-width: 720px; margin: 0 auto; }
+
+.page-header { text-align: center; margin-bottom: 64px; }
+.page-header h1 { font-family: 'Space Grotesk', sans-serif; font-size: 36px; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.02em; }
+.page-header p { color: var(--subtle); font-size: 16px; }
+
+.progress-bar-outer { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; height: 8px; margin: 32px 0 8px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; transition: width .4s; }
+.progress-label { font-size: 12px; color: var(--muted); text-align: right; margin-bottom: 40px; }
+
+/* STEP */
+.step {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.step.active { border-color: var(--accent); }
+.step.done   { border-color: var(--green); }
+
+.step-header {
+  display: flex; align-items: center; gap: 16px;
+  padding: 22px 24px; cursor: pointer;
+  user-select: none;
+}
+
+.step-num {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700;
+  flex-shrink: 0;
+  background: var(--surface2); color: var(--muted); border: 1px solid var(--border);
+  transition: background .2s, color .2s;
+}
+
+.step.active .step-num { background: rgba(79,142,255,0.15); color: var(--accent); border-color: var(--accent); }
+.step.done   .step-num { background: rgba(34,208,122,0.15); color: var(--green); border-color: var(--green); }
+
+.step-titles { flex: 1; }
+.step-title { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+.step-subtitle { font-size: 13px; color: var(--muted); }
+
+.step-chevron { color: var(--muted); transition: transform .25s; }
+.step.open .step-chevron { transform: rotate(180deg); }
+
+.step-body {
+  display: none; padding: 0 24px 24px;
+}
+.step.open .step-body { display: block; }
+
+/* INSTRUCTION */
+.instruction {
+  display: flex; gap: 14px; margin-bottom: 20px;
+}
+
+.inst-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(79,142,255,0.12);
+  border: 1px solid rgba(79,142,255,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: var(--accent);
+  flex-shrink: 0; margin-top: 1px;
+}
+
+.inst-content {}
+.inst-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.inst-desc  { font-size: 13px; color: var(--subtle); line-height: 1.65; }
+
+/* ACTION BUTTON - looks like a real UI button from Supabase */
+.ui-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #3ecf8e; color: #020202;
+  padding: 6px 14px; border-radius: 6px;
+  font-size: 13px; font-weight: 600;
+  margin: 4px 0;
+}
+
+.ui-btn.dark {
+  background: rgba(255,255,255,0.08);
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.ui-field {
+  display: inline-block;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px; font-family: monospace;
+  color: var(--accent); margin: 2px 0;
+}
+
+/* CODE BLOCK */
+.code-block {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  margin: 12px 0;
+  font-family: monospace; font-size: 13px;
+  line-height: 1.7;
+  position: relative;
+  overflow-x: auto;
+}
+
+.code-block .comment { color: var(--muted); }
+.code-block .key     { color: var(--accent); }
+.code-block .val     { color: var(--green); }
+.code-block .placeholder { color: var(--orange); font-weight: 600; }
+
+.copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--muted); font-size: 11px; font-weight: 500;
+  padding: 4px 10px; border-radius: 5px; cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: border-color .2s, color .2s;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--text); }
+
+/* CALLOUT */
+.callout {
+  display: flex; gap: 10px; align-items: flex-start;
+  border-radius: 10px; padding: 12px 14px;
+  font-size: 13px; line-height: 1.6; margin: 12px 0;
+}
+.callout.info    { background: rgba(79,142,255,0.08); border: 1px solid rgba(79,142,255,0.2); color: #a8c8ff; }
+.callout.warning { background: rgba(255,123,58,0.08); border: 1px solid rgba(255,123,58,0.2); color: #ffc4a0; }
+.callout.success { background: rgba(34,208,122,0.08); border: 1px solid rgba(34,208,122,0.2); color: #9affd4; }
+
+/* DONE BUTTON */
+.mark-done-btn {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 20px; padding: 10px 20px;
+  background: rgba(34,208,122,0.1); border: 1px solid rgba(34,208,122,0.3);
+  color: var(--green); border-radius: 9px; font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: 'Inter', sans-serif;
+  transition: background .2s;
+}
+.mark-done-btn:hover { background: rgba(34,208,122,0.18); }
+
+.external-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  color: var(--accent); text-decoration: none; font-size: 13px; font-weight: 500;
+}
+.external-link:hover { text-decoration: underline; }
+
+/* FINAL */
+.final-card {
+  background: linear-gradient(135deg, rgba(79,142,255,0.08), rgba(162,89,255,0.08));
+  border: 1px solid rgba(79,142,255,0.25);
+  border-radius: 16px; padding: 32px; text-align: center; margin-top: 32px;
+}
+.final-card h2 { font-family: 'Space Grotesk', sans-serif; font-size: 22px; margin-bottom: 10px; }
+.final-card p  { color: var(--subtle); font-size: 14px; line-height: 1.7; margin-bottom: 24px; }
+.btn-go {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white; padding: 12px 28px; border-radius: 9px;
+  font-size: 15px; font-weight: 600; text-decoration: none;
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="page-header">
+    <h1>🔧 Supabase Setup Guide</h1>
+    <p>Follow these steps to add real user accounts to ClipVault.<br>No coding needed — just clicks.</p>
+    <div class="progress-bar-outer">
+      <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <div class="progress-label" id="progressLabel">0 of 5 steps complete</div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step" id="step1" onclick="toggleStep(1)">
+    <div class="step-header">
+      <div class="step-num">1</div>
+      <div class="step-titles">
+        <div class="step-title">Create your Supabase account</div>
+        <div class="step-subtitle">Free forever — no credit card needed</div>
+      </div>
+      <svg class="step-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="step-body">
+      <div class="instruction">
+        <div class="inst-num">1</div>
+        <div class="inst-content">
+          <div class="inst-title">Open Supabase</div>
+          <div class="inst-desc">Go to <a class="external-link" href="https://supabase.com" target="_blank">supabase.com ↗</a> and click the green <span class="ui-btn">Start your project</span> button.</div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">2</div>
+        <div class="inst-content">
+          <div class="inst-title">Sign up with GitHub</div>
+          <div class="inst-desc">Click <span class="ui-btn dark">Continue with GitHub</span>. If you don't have GitHub, click "Sign up" first at github.com — it's free and takes 1 minute.</div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">3</div>
+        <div class="inst-content">
+          <div class="inst-title">You're in</div>
+          <div class="inst-desc">You'll land on the Supabase dashboard. This is your control panel for the whole backend.</div>
+        </div>
+      </div>
+      <div class="callout info">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Supabase free tier gives you 500MB database, 1GB storage, and 50,000 users — more than enough to launch.
+      </div>
+      <button class="mark-done-btn" onclick="markDone(1, event)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Mark as done
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step" id="step2" onclick="toggleStep(2)">
+    <div class="step-header">
+      <div class="step-num">2</div>
+      <div class="step-titles">
+        <div class="step-title">Create your ClipVault project</div>
+        <div class="step-subtitle">Takes about 2 minutes to spin up</div>
+      </div>
+      <svg class="step-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="step-body">
+      <div class="instruction">
+        <div class="inst-num">1</div>
+        <div class="inst-content">
+          <div class="inst-title">New project</div>
+          <div class="inst-desc">On your Supabase dashboard, click <span class="ui-btn">New project</span>.</div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">2</div>
+        <div class="inst-content">
+          <div class="inst-title">Fill in the form</div>
+          <div class="inst-desc">
+            Set these fields:<br><br>
+            <b>Name:</b> <span class="ui-field">clipvault</span><br>
+            <b>Database Password:</b> Create a strong password — <b>save it somewhere safe</b><br>
+            <b>Region:</b> Pick the one closest to you (e.g. Europe West or US East)<br>
+            <b>Plan:</b> Free
+          </div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">3</div>
+        <div class="inst-content">
+          <div class="inst-title">Wait ~2 minutes</div>
+          <div class="inst-desc">Supabase builds your database. A progress bar will show it. When it turns green, you're ready.</div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(2, event)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Mark as done
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step" id="step3" onclick="toggleStep(3)">
+    <div class="step-header">
+      <div class="step-num">3</div>
+      <div class="step-titles">
+        <div class="step-title">Get your API keys</div>
+        <div class="step-subtitle">2 values — copy them into your files</div>
+      </div>
+      <svg class="step-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="step-body">
+      <div class="instruction">
+        <div class="inst-num">1</div>
+        <div class="inst-content">
+          <div class="inst-title">Go to Project Settings</div>
+          <div class="inst-desc">In your Supabase project, click the ⚙️ <b>Settings</b> icon in the left sidebar, then click <b>API</b>.</div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">2</div>
+        <div class="inst-content">
+          <div class="inst-title">Copy your Project URL</div>
+          <div class="inst-desc">Under <b>Project URL</b>, you'll see something like:<br><span class="ui-field">https://abcxyz123.supabase.co</span><br>Copy this.</div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">3</div>
+        <div class="inst-content">
+          <div class="inst-title">Copy your Anon Key</div>
+          <div class="inst-desc">Under <b>Project API Keys</b>, copy the <b>anon public</b> key. It starts with <span class="ui-field">eyJ...</span></div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">4</div>
+        <div class="inst-content">
+          <div class="inst-title">Paste both into your files</div>
+          <div class="inst-desc">Open <b>signup.html</b> and <b>login.html</b> in a text editor (right-click → Open With → Notepad or TextEdit). Find this at the top of the &lt;script&gt; and replace the placeholder values:</div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <span class="comment">// Replace these two lines in signup.html AND login.html</span><br>
+        <span class="key">const SUPABASE_URL</span> = <span class="placeholder">'YOUR_SUPABASE_URL'</span>;<br>
+        <span class="key">const SUPABASE_ANON_KEY</span> = <span class="placeholder">'YOUR_SUPABASE_ANON_KEY'</span>;<br><br>
+        <span class="comment">// Becomes (example):</span><br>
+        <span class="key">const SUPABASE_URL</span> = <span class="val">'https://abcxyz123.supabase.co'</span>;<br>
+        <span class="key">const SUPABASE_ANON_KEY</span> = <span class="val">'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'</span>;
+      </div>
+
+      <div class="callout warning">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Never share your <b>service_role</b> key. Only the <b>anon</b> key goes into your HTML files — it's safe to expose.
+      </div>
+
+      <button class="mark-done-btn" onclick="markDone(3, event)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Mark as done
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step" id="step4" onclick="toggleStep(4)">
+    <div class="step-header">
+      <div class="step-num">4</div>
+      <div class="step-titles">
+        <div class="step-title">Enable Email + Google login</div>
+        <div class="step-subtitle">Turn on auth providers — 2 minutes</div>
+      </div>
+      <svg class="step-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="step-body">
+      <div class="instruction">
+        <div class="inst-num">1</div>
+        <div class="inst-content">
+          <div class="inst-title">Open Authentication settings</div>
+          <div class="inst-desc">In Supabase left sidebar, click <b>Authentication</b> → then <b>Providers</b>.</div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">2</div>
+        <div class="inst-content">
+          <div class="inst-title">Email is already on</div>
+          <div class="inst-desc">Email/password auth is enabled by default. Leave it as-is. ✓</div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">3</div>
+        <div class="inst-content">
+          <div class="inst-title">Enable Google (optional but recommended)</div>
+          <div class="inst-desc">
+            Click <b>Google</b> in the list → toggle it <b>on</b>.<br><br>
+            To get Google credentials:<br>
+            → Go to <a class="external-link" href="https://console.cloud.google.com" target="_blank">console.cloud.google.com ↗</a><br>
+            → Create a project → APIs & Services → Credentials → Create OAuth 2.0 Client ID<br>
+            → Paste the Client ID and Secret back into Supabase<br><br>
+            <span style="color:var(--muted)">This step is optional — email signup works perfectly without it.</span>
+          </div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">4</div>
+        <div class="inst-content">
+          <div class="inst-title">Add your site URL</div>
+          <div class="inst-desc">In Supabase → <b>Authentication</b> → <b>URL Configuration</b>, set:<br>
+          <span class="ui-field">Site URL</span> → your Vercel URL (e.g. <span class="ui-field">https://clipvault.vercel.app</span>)<br>
+          <span class="ui-field">Redirect URLs</span> → same URL + <span class="ui-field">/dashboard.html</span></div>
+        </div>
+      </div>
+      <div class="callout success">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px"><polyline points="20 6 9 17 4 12"/></svg>
+        Users can now create accounts with email and get a confirmation email automatically.
+      </div>
+      <button class="mark-done-btn" onclick="markDone(4, event)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Mark as done
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="step" id="step5" onclick="toggleStep(5)">
+    <div class="step-header">
+      <div class="step-num">5</div>
+      <div class="step-titles">
+        <div class="step-title">Deploy to Vercel</div>
+        <div class="step-subtitle">Your site goes live in under 5 minutes</div>
+      </div>
+      <svg class="step-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="step-body">
+      <div class="callout info">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
+        Make sure you've pasted your Supabase URL and key into signup.html and login.html before this step.
+      </div>
+
+      <div class="instruction">
+        <div class="inst-num">1</div>
+        <div class="inst-content">
+          <div class="inst-title">Your folder should contain these files</div>
+          <div class="inst-desc">
+            <span class="ui-field">index.html</span> — Landing page<br>
+            <span class="ui-field">dashboard.html</span> — App dashboard<br>
+            <span class="ui-field">signup.html</span> — Sign up page<br>
+            <span class="ui-field">login.html</span> — Log in page
+          </div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">2</div>
+        <div class="inst-content">
+          <div class="inst-title">Go to Vercel</div>
+          <div class="inst-desc">Go to <a class="external-link" href="https://vercel.com" target="_blank">vercel.com ↗</a> → Sign up with GitHub (free) → click <span class="ui-btn">Add New → Project</span>.</div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">3</div>
+        <div class="inst-content">
+          <div class="inst-title">Deploy your folder</div>
+          <div class="inst-desc">Click <b>"Deploy from your computer"</b> or drag your <span class="ui-field">clipvault</span> folder into the Vercel deploy window. No configuration needed — just drop and deploy.</div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">4</div>
+        <div class="inst-content">
+          <div class="inst-title">Get your live URL</div>
+          <div class="inst-desc">Vercel gives you a URL like <span class="ui-field">https://clipvault-xyz.vercel.app</span>. Copy it and paste it back into Supabase → Authentication → URL Configuration as your Site URL.</div>
+        </div>
+      </div>
+      <div class="instruction">
+        <div class="inst-num">5</div>
+        <div class="inst-content">
+          <div class="inst-title">Test it live</div>
+          <div class="inst-desc">Visit your URL → click "Start free" → sign up with an email → check your inbox for the confirmation email → log in. 🎉</div>
+        </div>
+      </div>
+      <div class="callout success">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px"><polyline points="20 6 9 17 4 12"/></svg>
+        Every time you update a file and re-upload to Vercel, your site updates automatically within seconds.
+      </div>
+      <button class="mark-done-btn" onclick="markDone(5, event)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Mark as done — site is live! 🚀
+      </button>
+    </div>
+  </div>
+
+  <!-- FINAL -->
+  <div class="final-card" id="finalCard" style="display:none">
+    <div style="font-size:48px;margin-bottom:16px">🎉</div>
+    <h2>Auth is live!</h2>
+    <p>Real users can now sign up, log in, and reset their password.<br>Your site is deployed and working.</p>
+    <a href="index.html" class="btn-go">Go to ClipVault →</a>
+    <p style="margin-top:16px;font-size:13px;color:var(--muted)">Next: <b>Step 3 — Video Upload & Storage</b></p>
+  </div>
+
+</div>
+
+<script>
+const totalSteps = 5;
+let doneSteps = new Set();
+
+function toggleStep(n) {
+  const step = document.getElementById('step' + n);
+  const isOpen = step.classList.contains('open');
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('open'));
+  if (!isOpen) step.classList.add('open');
+}
+
+function markDone(n, e) {
+  e.stopPropagation();
+  const step = document.getElementById('step' + n);
+  step.classList.add('done');
+  step.classList.remove('open', 'active');
+  doneSteps.add(n);
+  updateProgress();
+
+  // open next step
+  if (n < totalSteps) {
+    const next = document.getElementById('step' + (n + 1));
+    next.classList.add('active', 'open');
+    next.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  if (doneSteps.size === totalSteps) {
+    document.getElementById('finalCard').style.display = 'block';
+    document.getElementById('finalCard').scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+function updateProgress() {
+  const pct = Math.round((doneSteps.size / totalSteps) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = doneSteps.size + ' of ' + totalSteps + ' steps complete';
+}
+
+function copyCode(btn) {
+  const block = btn.parentElement;
+  const text = block.innerText.replace('Copy', '').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+}
+
+// open first step on load
+toggleStep(1);
+document.getElementById('step1').classList.add('active');
+</script>
+</body>
+</html>
